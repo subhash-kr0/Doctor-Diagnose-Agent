@@ -52,7 +52,7 @@ def process_file(upload_file):
                 image_array = dicom.pixel_array
 
                 #Convert to 8-bit for display
-                image_array = ((image_array - image_array.min()/(image_array.max() - image_array.min()) * 255).astype(np.uint8))
+                image_array = ((image_array - image_array.min())/(image_array.max() - image_array.min()) * 255).astype(np.uint8))
 
                 return {
                     "type": "dicom",
@@ -82,5 +82,64 @@ def process_file(upload_file):
 
                     #make a middle slice for preview
                     middle_slice = nii_data.shape[2] // 2
-                    
+                    image_array = nii_data[:, :, middle_slice]
+
+                    #Normalize for display
+                    image_array = ((image_array - image_array.min())/(image_array.max() - image_array.min()) * 255).astype(np.uint8))
+
+                    # Clean up temp file
+                    os.remove(temp_path)
+
+                    return {
+                        "type": "nifti",
+                        "data": Image.fromarray(image_array),
+                        "array": image_array,
+                        "metadata": {
+                            "Dimensions": nii_data.shape,
+                            "Voxel Size": nii_img.header.get_zooms()
+                        }
+                    }
+
+        except Exception as e:
+            print(f"Error Processing NIFTI: {e}")
+            return None
             
+
+    elif file_extension in ['dcm', 'nii', 'nii.gz']:
+        return {
+            "type": "image",
+            "data": Image.new('RGB', (400, 400), color='gray'),
+            "array": np.zeros((400, 400, 3), dtype=np.uint8),
+            "metadata": {
+                "Warning": "Reuired libraries not installed for this file type",
+                "Missing": "Install pydicom or nibabel to process thia file"
+            }
+        }
+
+    else:
+        return None
+
+
+def analyze_image(image_data, api_key,enable_xai=True):
+    """Analyze image and return results(mock implementaion)"""
+
+    if isinstance(image_data, Image.Image):
+        image_array = np.array(image_data)
+    else:
+        image_array = image_data
+
+    analysis = """
+    **Radiological Analysis**
+
+    The image shows a chest X-ray with apparent bilateral pulmonary infiltrates, predominantly in the lower labes. There is evidence of ground-glass opacities and possible consolidation in the right lower labe. The cardiac silhouette appears mildly enlarged. No pneumothorax or pleural effusion is visible.
+
+    **Impression:**
+    1. Bilateral pulmonary infiltrates, consistent with atypical pneumonia
+    2. Consider viral etiology (e.g., COVID-19) in appropriate clinical context
+    3. Mild cardiomegaly
+    4. Recommend clinical correlation and follow-up imaging as appropriate
+    """
+
+    finding = [
+        "Bilateral pulmonary infiltrates",
+    ]
