@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+pillow
+python-multipart
+openai
+requests
+streamlit
+
+langchain==0.3.13
+langchain-core==0.3.28
+langchain-community==0.3.13
+langchain-openai==0.2.14

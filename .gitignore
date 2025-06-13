@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+lang6
 
 # C extensions
 *.so
